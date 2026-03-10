@@ -32,7 +32,6 @@ export default function ContactAcarsSidebar({
   onClose,
   flights,
   onSendContact,
-  activeAcarsFlights,
   airportIcao,
   fallbackFrequency,
 }: ContactAcarsSidebarProps) {
