@@ -192,8 +192,6 @@ export default function ChatSidebar({
     };
   }, [open]);
 
-  // When the sidebar is closed, clear any temporary upgrade state so that
-  // eligible plans (e.g. Basic with text chat) see chat again next time.
   useEffect(() => {
     if (!open) {
       setRequiresUpgrade(false);
@@ -401,7 +399,15 @@ export default function ChatSidebar({
         globalSocketRef.current = null;
       }
     };
-  }, [user?.userId, station, position, isPFATC, open, activeTab, canUseTextChat]);
+  }, [
+    user?.userId,
+    station,
+    position,
+    isPFATC,
+    open,
+    activeTab,
+    canUseTextChat,
+  ]);
 
   useEffect(() => {
     if (!globalSocketRef.current) return;
@@ -648,15 +654,15 @@ export default function ChatSidebar({
     return (
       <div
         className={`fixed top-0 right-0 h-full w-100 bg-zinc-900 text-white transition-transform duration-300 ${
-          open ? 'translate-x-[] shadow-2xl shadow-black/90' : 'translate-x-full'
+          open
+            ? 'translate-x-[] shadow-2xl shadow-black/90'
+            : 'translate-x-full'
         } rounded-l-3xl border-l-2 border-blue-800 flex flex-col`}
         style={{ zIndex: 10000 }}
       >
         <div className="flex justify-between items-center p-5 border-b border-blue-800 rounded-tl-3xl">
           <div className="flex items-center gap-3">
-            <span className="font-extrabold text-xl text-blue-300">
-              Chat
-            </span>
+            <span className="font-extrabold text-xl text-blue-300">Chat</span>
           </div>
           <button
             onClick={() => onClose()}
@@ -783,9 +789,11 @@ export default function ChatSidebar({
                   <div
                     key={sessionUser.id}
                     className="flex flex-col items-center gap-0.5"
-                    title={sessionUser.roles?.length
-                      ? `${sessionUser.username} (${sessionUser.roles.map((r) => r.name).join(', ')})`
-                      : sessionUser.username}
+                    title={
+                      sessionUser.roles?.length
+                        ? `${sessionUser.username} (${sessionUser.roles.map((r) => r.name).join(', ')})`
+                        : sessionUser.username
+                    }
                   >
                     <img
                       src={
@@ -798,33 +806,6 @@ export default function ChatSidebar({
                           : 'border-gray-500'
                       }`}
                     />
-                    {sessionUser.roles && sessionUser.roles.length > 0 && (
-                      <div className="flex flex-wrap justify-center gap-0.5 max-w-[80px]">
-                        {sessionUser.roles.slice(0, 3).map((role) => {
-                          const RoleIcon = getIconComponent(role.icon);
-                          return (
-                            <span
-                              key={role.id}
-                              className="inline-flex items-center rounded px-1 py-0.5 text-[10px] font-medium border"
-                              style={{
-                                backgroundColor: `${role.color}20`,
-                                borderColor: `${role.color}60`,
-                                color: role.color,
-                              }}
-                              title={role.name}
-                            >
-                              <RoleIcon className="h-2.5 w-2.5 mr-0.5 flex-shrink-0" />
-                              {role.name}
-                            </span>
-                          );
-                        })}
-                        {sessionUser.roles.length > 3 && (
-                          <span className="text-[10px] text-zinc-400">
-                            +{sessionUser.roles.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    )}
                   </div>
                 ))
               ) : (
