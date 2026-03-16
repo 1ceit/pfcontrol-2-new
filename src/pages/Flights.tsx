@@ -301,10 +301,6 @@ export default function Flights() {
       setFlights((prev) => prev.filter((flight) => flight.id !== flightId));
     };
 
-    const handleFlightError = (error: string) => {
-      console.error('Flight websocket error:', error);
-    };
-
     const socket = createFlightsSocket(
       sessionId,
       accessId,
@@ -313,7 +309,9 @@ export default function Flights() {
       handleFlightUpdate,
       handleFlightAdded,
       handleFlightDeleted,
-      handleFlightError
+      (error: { action: string; flightId?: string | number; error: string }) => {
+        console.error('Flight websocket error:', error);
+      }
     );
     socket.socket.on('sessionUpdated', (updates) => {
       setSession((prev) => (prev ? { ...prev, ...updates } : null));
