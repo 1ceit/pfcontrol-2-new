@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import { getTesterSettings } from '../db/testers.js';
 import { getActiveNotifications } from '../db/notifications.js';
 import { mainDb, flightsDb, redisConnection } from '../db/connection.js';
-import { getTopUsers, STATS_KEYS } from '../db/leaderboard.js';
+import { getTopUsers, STATS_KEYS, getUserRank } from '../db/leaderboard.js';
 import { getUserById } from '../db/users.js';
 import { getWaypointData } from '../utils/getData.js';
 import { findPath } from '../utils/findRoute.js';
@@ -552,6 +552,32 @@ router.get('/leaderboard', async (req, res) => {
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
     res.status(500).json({ error: 'Failed to fetch leaderboard' });
+  }
+});
+
+// GET: /api/data/ranks/:userId - Fetch leaderboard ranks for a specific user
+router.get('/ranks/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'Missing userId parameter' });
+    }
+
+    const user = await getUserById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const ranks: Record<string, number | null> = {};
+    for (const key of STATS_KEYS) {
+      ranks[key] = await getUserRank(userId, key);
+    }
+
+    res.json(ranks);
+  } catch (error) {
+    console.error('Error fetching user ranks:', error);
+    res.status(500).json({ error: 'Failed to fetch user ranks' });
   }
 });
 

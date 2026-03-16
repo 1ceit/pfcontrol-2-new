@@ -38,7 +38,7 @@ import { SiRoblox } from 'react-icons/si';
 import { fetchPilotProfile } from '../utils/fetch/pilot';
 import { getCurrentUser } from '../utils/fetch/auth';
 import { useAuth } from '../hooks/auth/useAuth';
-import { fetchBackgrounds } from '../utils/fetch/data';
+import { fetchBackgrounds, fetchUserRanks } from '../utils/fetch/data';
 import type { PilotProfile, Role } from '../types/pilot';
 import Button from '../components/common/Button';
 import Loader from '../components/common/Loader';
@@ -146,8 +146,13 @@ export default function PilotProfile() {
       const data = await fetchPilotProfile(username!);
       if (data) {
         setProfile(data);
-        if (!isCurrentUser) {
-          setUserStats(data.user.statistics || {});
+        setUserStats(data.user.statistics || {});
+
+        try {
+          const profileRanks = await fetchUserRanks(data.user.id);
+          setRanks(profileRanks || {});
+        } catch {
+          // ignore
         }
       } else {
         setError('Pilot not found');
@@ -163,7 +168,6 @@ export default function PilotProfile() {
     try {
       const userData = await getCurrentUser();
       setUserStats(userData.statistics || {});
-      setRanks(userData.ranks || {});
     } catch {
       // ignore
     }
@@ -323,7 +327,7 @@ export default function PilotProfile() {
     profile.user.vatsim_rating_long
   );
 
-  const hasCrown = isCurrentUser && isRankOne(ranks);
+  const hasCrown = isRankOne(ranks);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">

@@ -105,6 +105,18 @@ export async function fetchActiveNotifications(): Promise<AdminNotification[]> {
   return await response.json();
 }
 
+export async function fetchUserRanks(
+  userId: string
+): Promise<Record<string, number | null>> {
+  const response = await fetch(
+    `${import.meta.env.VITE_SERVER_URL}/api/data/ranks/${userId}`
+  );
+  if (!response.ok) {
+    throw new Error('Failed to fetch user ranks');
+  }
+  return response.json();
+}
+
 export async function fetchRoute(from: string, to: string): Promise<{
   path: Array<{ name: string; x: number; y: number; type: string }>;
   distance: number;
